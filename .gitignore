@@ -1,29 +1,33 @@
-# Ansible runtime artifacts
+## Ansible runtime artifacts
 .facts_cache/
 *.retry
 *.log
 
-# Vault password — NEVER commit this
+## Vault password — NEVER commit this
 .vault_pass
 
-# Python virtualenv
+## Python virtualenv
 .venv/
 venv/
 __pycache__/
 *.pyc
 
-# Installed collections and roles
+## Installed collections and roles
 .collections/
 .roles/
 
-# Editor
+## Editor
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# macOS
+## macOS
 .DS_Store
 
-# Molecule test artifacts
+## Molecule test artifacts
 .molecule/
+
+## Tools
+.serena/
+.direnv/
