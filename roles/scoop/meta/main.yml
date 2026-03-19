@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  role_name: scoop
+  description: Manage Scoop buckets and packages.
+  min_ansible_version: "2.16"
+  platforms:
+    - name: Windows
+      versions: ["10", "11"]
+
+dependencies:
+  - role: bootstrap   # Scoop must be installed first

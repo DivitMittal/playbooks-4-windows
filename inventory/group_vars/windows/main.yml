@@ -1,0 +1,49 @@
+---
+# ── Derived from vault (never use vault_ variables directly in tasks) ──────────
+git_email:       "{{ vault_git_email }}"
+git_signing_key: "{{ vault_git_signing_key }}"
+
+# ── Windows path conventions ─────────────────────────────────────────────────
+userprofile:       "{{ ansible_env.USERPROFILE }}"
+appdata_roaming:   "{{ ansible_env.APPDATA }}"
+appdata_local:     "{{ ansible_env.LOCALAPPDATA }}"
+temp_dir:          "{{ ansible_env.TEMP }}"
+
+# Derived convenience paths
+documents_dir:       "{{ userprofile }}\\Documents"
+powershell_dir:      "{{ userprofile }}\\Documents\\PowerShell"
+desktop_dir:         "{{ userprofile }}\\Desktop"
+
+# ── Scoop ─────────────────────────────────────────────────────────────────────
+scoop_dir:           "{{ userprofile }}\\scoop"
+scoop_shims:         "{{ scoop_dir }}\\shims"
+scoop_apps:          "{{ scoop_dir }}\\apps"
+scoop_cache:         "{{ scoop_dir }}\\cache"
+
+# ── MSYS2 ─────────────────────────────────────────────────────────────────────
+msys2_root:          "{{ scoop_apps }}\\msys2\\current"
+msys2_usr_bin:       "{{ msys2_root }}\\usr\\bin"
+msys2_mingw64:       "{{ msys2_root }}\\mingw64\\bin"
+msys2_default_shell: fish
+
+# ── Application config paths ─────────────────────────────────────────────────
+wezterm_config_dir:    "{{ xdg_config_home }}\\wezterm"
+starship_config:       "{{ xdg_config_home }}\\starship.toml"
+fastfetch_config_dir:  "{{ xdg_config_home }}\\fastfetch"
+tridactyl_config_dir:  "{{ xdg_config_home }}\\tridactyl"
+whkd_config:           "{{ xdg_config_home }}\\whkdrc"
+git_config_dir:        "{{ xdg_config_home }}\\git"
+kanata_config_dir:     "{{ appdata_roaming }}\\kanata"
+
+# ── Firefox ───────────────────────────────────────────────────────────────────
+firefox_profile_name:  "custom-default"
+firefox_profiles_dir:  "{{ appdata_roaming }}\\Mozilla\\Firefox\\Profiles"
+firefox_profile_path:  "{{ firefox_profiles_dir }}\\{{ firefox_profile_name }}"
+
+# ── Windows settings ─────────────────────────────────────────────────────────
+# Registry hive shortcuts for win_regedit
+hkcu: "HKCU:"
+hklm: "HKLM:"
+
+# PowerShell execution policy (valid: Restricted, AllSigned, RemoteSigned, Unrestricted)
+ps_execution_policy: "RemoteSigned"

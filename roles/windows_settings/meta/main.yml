@@ -1,0 +1,9 @@
+---
+galaxy_info:
+  role_name: windows_settings
+  description: >
+    Configure Windows OS settings: Explorer, registry, PATH, environment
+    variables, power plan, developer mode.
+  min_ansible_version: "2.16"
+
+dependencies: []

@@ -1,0 +1,71 @@
+---
+# ── Scoop Installation ────────────────────────────────────────────────────────
+# Installs Scoop if not already present. Scoop is the foundation for all
+# subsequent package management.
+
+- name: Check if Scoop is already installed
+  ansible.windows.win_stat:
+    path: "{{ scoop_dir }}\\shims\\scoop.ps1"
+  register: scoop_stat
+
+- name: Download and install Scoop
+  block:
+    - name: Download Scoop installer to temp
+      ansible.windows.win_get_url:
+        url: "https://get.scoop.sh"
+        dest: "{{ temp_dir }}\\install-scoop.ps1"
+      retries: 3
+      delay: 5
+      register: scoop_download
+      until: scoop_download is not failed
+
+    - name: Run Scoop installer
+      ansible.windows.win_shell: |
+        pwsh -NoLogo -NonInteractive -ExecutionPolicy Bypass `
+          -File "{{ temp_dir }}\install-scoop.ps1" `
+          -ScoopDir "{{ scoop_dir }}"
+      register: scoop_install_result
+      changed_when: true
+      notify: refresh env
+
+    - name: Verify Scoop binary is present after install
+      ansible.windows.win_stat:
+        path: "{{ scoop_dir }}\\shims\\scoop.ps1"
+      register: scoop_post_install
+      failed_when: not scoop_post_install.stat.exists
+
+  rescue:
+    - name: Scoop install failed — print installer output
+      ansible.builtin.debug:
+        msg: "{{ scoop_install_result.stderr | default('No stderr captured') }}"
+
+    - name: Fail with actionable message
+      ansible.builtin.fail:
+        msg: >
+          Scoop installation failed. Common causes:
+          1. No internet access from target machine.
+          2. TLS 1.2 not enabled (run: [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12).
+          3. ExecutionPolicy too restrictive.
+          Check the output above and retry.
+
+  when: not scoop_stat.stat.exists
+
+- name: Add Scoop shims to user PATH (idempotent)
+  ansible.windows.win_path:
+    elements:
+      - "{{ scoop_shims }}"
+    scope: user
+    state: present
+  notify: refresh env
+
+- name: Verify scoop is callable after PATH update
+  ansible.windows.win_shell: scoop --version
+  register: scoop_version_check
+  changed_when: false
+  retries: 2
+  delay: 3
+  until: scoop_version_check.rc == 0
+
+- name: Report Scoop version
+  ansible.builtin.debug:
+    msg: "Scoop {{ scoop_version_check.stdout | trim }} is ready ✓"

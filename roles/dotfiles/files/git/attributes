@@ -1,0 +1,15 @@
+# Git attributes — enforces LF line endings for all text files
+* text=auto eol=lf
+
+# Force binary treatment for common binary types
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.zip  binary
+*.gz   binary
+*.ttf  binary
+*.woff binary
+*.woff2 binary

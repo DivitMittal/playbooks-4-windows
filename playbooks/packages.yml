@@ -1,0 +1,29 @@
+---
+# ── packages.yml ──────────────────────────────────────────────────────────────
+# Install all packages without touching dotfiles or Windows settings.
+# Useful for:
+#   - Setting up the package layer on a machine that already has dotfiles
+#   - Re-running after adding new packages to group_vars/windows/packages.yml
+#
+# Usage:
+#   ansible-playbook playbooks/packages.yml
+#   ansible-playbook playbooks/packages.yml --tags scoop
+#   ansible-playbook playbooks/packages.yml --tags winget
+#   ansible-playbook playbooks/packages.yml --check   # dry-run
+
+- name: Install and ensure all packages
+  hosts: windows
+  gather_facts: true
+
+  roles:
+    - role: scoop
+      tags: [packages, scoop]
+      when: feature_scoop | bool
+
+    - role: winget
+      tags: [packages, winget]
+      when: feature_winget | bool
+
+    - role: msys2
+      tags: [packages, msys2]
+      when: feature_msys2 | bool

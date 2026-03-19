@@ -1,0 +1,18 @@
+---
+# ── Per-host overrides for the primary workstation ───────────────────────────
+# Values here shadow group_vars/windows/* for this host only.
+
+# Machine-specific identity shown in Starship prompt
+machine_hostname: "WORKSTATION"
+
+# Laptop-specific tweaks (throttlestop, battery modules in starship)
+is_laptop: true
+
+# Override package list: add extras not needed on servers
+scoop_packages_extra:
+  - name: throttlestop
+    bucket: extras
+    category: util
+
+# Override firefox profile name if this machine uses a different profile
+# firefox_profile_name: "dev-profile"

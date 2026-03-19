@@ -1,0 +1,7 @@
+---
+# Whether to create backups of existing files before overwriting
+dotfiles_backup_existing: true
+dotfiles_backup_suffix: ".bak"
+
+# Force overwrite even if content is identical (useful after template var changes)
+dotfiles_force: false

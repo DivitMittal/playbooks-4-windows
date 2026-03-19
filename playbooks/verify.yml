@@ -1,0 +1,91 @@
+---
+# ── verify.yml ────────────────────────────────────────────────────────────────
+# Read-only verification — confirms desired state without making changes.
+# Does NOT use --check mode (which can produce false positives on win_shell).
+# Instead, it explicitly tests each component and emits pass/fail messages.
+#
+# Usage:
+#   ansible-playbook playbooks/verify.yml
+#   ansible-playbook playbooks/verify.yml --tags scoop
+
+- name: Verify workstation configuration
+  hosts: windows
+  gather_facts: true
+
+  tasks:
+    # ── Scoop ─────────────────────────────────────────────────────────────────
+    - name: Check Scoop is on PATH
+      ansible.windows.win_command: scoop --version
+      register: scoop_ver
+      changed_when: false
+      failed_when: scoop_ver.rc != 0
+      tags: [verify, scoop]
+
+    - name: Verify required Scoop packages are installed
+      ansible.windows.win_shell: scoop list {{ item.name }}
+      register: scoop_check
+      changed_when: false
+      failed_when:
+        - scoop_check.rc != 0
+        - "item.name not in scoop_check.stdout"
+      loop: "{{ scoop_packages | selectattr('category', 'equalto', 'dev') | list }}"
+      loop_control:
+        label: "{{ item.name }}"
+      when: feature_scoop | bool
+      tags: [verify, scoop]
+
+    # ── Config files ──────────────────────────────────────────────────────────
+    - name: Verify critical config files exist
+      ansible.windows.win_stat:
+        path: "{{ item }}"
+      register: config_stat
+      loop:
+        - "{{ powershell_dir }}\\Profile.ps1"
+        - "{{ starship_config }}"
+        - "{{ git_config_dir }}\\config"
+        - "{{ wezterm_config_dir }}\\wezterm.lua"
+      loop_control:
+        label: "{{ item }}"
+      tags: [verify, dotfiles]
+
+    - name: Assert all critical configs are present
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+        fail_msg: "MISSING: {{ item.item }}"
+        success_msg: "OK: {{ item.item }}"
+      loop: "{{ config_stat.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      tags: [verify, dotfiles]
+
+    # ── Git ───────────────────────────────────────────────────────────────────
+    - name: Verify git user.name is configured
+      ansible.windows.win_shell: git config --global user.name
+      register: git_name_check
+      changed_when: false
+      failed_when: git_name_check.stdout | trim | length == 0
+      tags: [verify, git]
+
+    - name: Verify git user.email is configured
+      ansible.windows.win_shell: git config --global user.email
+      register: git_email_check
+      changed_when: false
+      failed_when: git_email_check.stdout | trim | length == 0
+      no_log: true   # Don't expose email in verbose output
+      tags: [verify, git]
+
+    # ── Windows settings ──────────────────────────────────────────────────────
+    - name: Verify PATH contains Scoop shims
+      ansible.windows.win_shell: |
+        $paths = $env:PATH -split ';'
+        if ($paths -notcontains '{{ scoop_shims }}') { exit 1 }
+      register: path_check
+      changed_when: false
+      failed_when: path_check.rc != 0
+      tags: [verify, settings]
+
+    - name: Print verification summary
+      ansible.builtin.debug:
+        msg: "All verification checks passed for {{ inventory_hostname }} ✓"
+      tags: always

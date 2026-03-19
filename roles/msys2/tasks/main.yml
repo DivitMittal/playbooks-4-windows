@@ -1,0 +1,17 @@
+---
+- name: Verify MSYS2 is installed
+  ansible.windows.win_stat:
+    path: "{{ msys2_root }}\\usr\\bin\\bash.exe"
+  register: msys2_stat
+
+- name: Fail if MSYS2 is not installed
+  ansible.builtin.fail:
+    msg: >
+      MSYS2 not found at {{ msys2_root }}.
+      Install it first with the scoop role (scoop install msys2).
+  when: not msys2_stat.stat.exists
+
+- name: Manage MSYS2 packages
+  ansible.builtin.import_tasks: packages.yml
+  when: msys2_stat.stat.exists
+  tags: [msys2]

@@ -1,0 +1,10 @@
+---
+# Whether to update Scoop itself before installing packages
+scoop_update_self: true
+
+# Whether to run `scoop cleanup` after installing all packages
+scoop_cleanup_after: true
+
+# Parallelism hint — Scoop itself is sequential but we can loop faster
+scoop_install_retries: 2
+scoop_install_delay: 3

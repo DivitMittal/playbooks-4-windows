@@ -1,0 +1,142 @@
+---
+# ── Git configuration ─────────────────────────────────────────────────────────
+# gitconfig is a template (contains the vault-sourced email).
+# gitattributes and gitignore are static files.
+
+- name: Deploy git config (template — contains email)
+  ansible.windows.win_template:
+    src: git/config.j2
+    dest: "{{ git_config_dir }}\\config"
+    force: "{{ dotfiles_force }}"
+  tags: [dotfiles, git]
+  when: feature_git_config | bool
+
+- name: Deploy git attributes (static)
+  ansible.windows.win_copy:
+    src: git/attributes
+    dest: "{{ git_config_dir }}\\attributes"
+    force: "{{ dotfiles_force }}"
+  tags: [dotfiles, git]
+  when: feature_git_config | bool
+
+- name: Deploy global gitignore (static)
+  ansible.windows.win_copy:
+    src: git/ignore
+    dest: "{{ git_config_dir }}\\ignore"
+    force: "{{ dotfiles_force }}"
+  tags: [dotfiles, git]
+  when: feature_git_config | bool
+
+# ── PowerShell Profile ────────────────────────────────────────────────────────
+# Templated to inject editor, shell, and feature-flag-driven sections.
+
+- name: Deploy PowerShell profile (template)
+  ansible.windows.win_template:
+    src: Profile.ps1.j2
+    dest: "{{ powershell_dir }}\\Profile.ps1"
+    force: "{{ dotfiles_force }}"
+  tags: [dotfiles, shell, powershell]
+
+- name: Deploy powershell.config.json
+  ansible.windows.win_copy:
+    content: |
+      {
+        "Microsoft.PowerShell:ExecutionPolicy": "RemoteSigned"
+      }
+    dest: "{{ powershell_dir }}\\powershell.config.json"
+  tags: [dotfiles, shell, powershell]
+
+# ── Starship prompt ───────────────────────────────────────────────────────────
+- name: Deploy starship.toml (template — feature flags control modules)
+  ansible.windows.win_template:
+    src: starship.toml.j2
+    dest: "{{ starship_config }}"
+    force: "{{ dotfiles_force }}"
+  tags: [dotfiles, shell, starship]
+  when: feature_starship | bool
+
+# ── Wezterm ───────────────────────────────────────────────────────────────────
+- name: Deploy Wezterm Lua configuration files
+  ansible.windows.win_copy:
+    src: "wezterm/{{ item }}"
+    dest: "{{ wezterm_config_dir }}\\{{ item }}"
+    force: "{{ dotfiles_force }}"
+  loop:
+    - wezterm.lua
+    - options.lua
+    - binds.lua
+    - smartSplits.lua
+    - tabline.lua
+  loop_control:
+    label: "{{ item }}"
+  tags: [dotfiles, terminal, wezterm]
+  when: feature_wezterm | bool
+
+# ── Fastfetch ─────────────────────────────────────────────────────────────────
+- name: Deploy fastfetch config
+  ansible.windows.win_copy:
+    src: fastfetch/config.jsonc
+    dest: "{{ fastfetch_config_dir }}\\config.jsonc"
+    force: "{{ dotfiles_force }}"
+  tags: [dotfiles, shell, fastfetch]
+
+# ── Tridactyl (Firefox vim bindings) ─────────────────────────────────────────
+- name: Deploy tridactylrc
+  ansible.windows.win_copy:
+    src: tridactyl/tridactylrc
+    dest: "{{ tridactyl_config_dir }}\\tridactylrc"
+    force: "{{ dotfiles_force }}"
+  tags: [dotfiles, firefox, tridactyl]
+  when: feature_tridactyl | bool
+
+# ── Firefox user.js ───────────────────────────────────────────────────────────
+- name: Find Firefox profile directory
+  ansible.windows.win_find:
+    paths: "{{ firefox_profiles_dir }}"
+    file_type: directory
+    patterns: "*{{ firefox_profile_name }}*"
+  register: firefox_profile_dirs
+  when: feature_firefox | bool
+  tags: [dotfiles, firefox]
+
+- name: Set resolved Firefox profile path
+  ansible.builtin.set_fact:
+    resolved_firefox_profile: >-
+      {{
+        firefox_profile_dirs.files[0].path
+        if (firefox_profile_dirs.files | default([]) | length > 0)
+        else firefox_profile_path
+      }}
+  when: feature_firefox | bool
+  tags: [dotfiles, firefox]
+
+- name: Deploy Firefox user.js (template — privacy prefs)
+  ansible.windows.win_template:
+    src: firefox/user.js.j2
+    dest: "{{ resolved_firefox_profile }}\\user.js"
+    force: "{{ dotfiles_force }}"
+  tags: [dotfiles, firefox]
+  when: feature_firefox | bool
+
+# ── whkd (window hotkey daemon) ───────────────────────────────────────────────
+- name: Deploy whkdrc
+  ansible.windows.win_copy:
+    src: whkdrc
+    dest: "{{ whkd_config }}"
+    force: "{{ dotfiles_force }}"
+  tags: [dotfiles, wm, whkd]
+  when: feature_whkd | bool
+
+# ── kanata (keyboard remapping — legacy) ──────────────────────────────────────
+- name: Deploy kanata configs
+  ansible.windows.win_copy:
+    src: "kanata/{{ item }}"
+    dest: "{{ kanata_config_dir }}\\{{ item }}"
+    force: "{{ dotfiles_force }}"
+  loop:
+    - kanata.kbd
+    - tltr_config.kbd
+  loop_control:
+    label: "{{ item }}"
+  tags: [dotfiles, keyboard, kanata]
+  when: feature_kanata | bool

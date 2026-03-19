@@ -1,0 +1,101 @@
+# {{ ansible_managed }}
+# PowerShell Profile — managed by Ansible
+# Host: {{ inventory_hostname }} | Generated: {{ ansible_date_time.iso8601 }}
+# DO NOT EDIT BY HAND — changes will be overwritten on the next `make dotfiles`.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Environment Variables
+# ─────────────────────────────────────────────────────────────────────────────
+$scoopPath          = "{{ scoop_dir }}"
+$env:EDITOR         = "{{ default_editor }}"
+$env:VISUAL         = "{{ visual_editor }}"
+$env:SHELL          = "{{ user_shell }}"
+$env:XDG_CONFIG_HOME = "{{ xdg_config_home }}"
+$env:XDG_DATA_HOME   = "{{ xdg_data_home }}"
+$env:XDG_CACHE_HOME  = "{{ xdg_cache_home }}"
+$env:STARSHIP_CONFIG = "{{ starship_config }}"
+$env:GIT_CONFIG_GLOBAL = "{{ git_config_dir }}\config"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PATH Extensions
+# ─────────────────────────────────────────────────────────────────────────────
+$pathAdditions = @(
+    "{{ xdg_bin_home }}",
+    "$scoopPath\shims"{% if feature_msys2 | bool %},
+    "{{ msys2_mingw64 }}"{% endif %}
+
+)
+
+foreach ($p in $pathAdditions) {
+    if ((Test-Path $p) -and ($env:PATH -notlike "*$p*")) {
+        $env:PATH = "$p;$env:PATH"
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Aliases — Package Management
+# ─────────────────────────────────────────────────────────────────────────────
+function scoop-ultimate {
+    Write-Host "[scoop] Updating Scoop..." -ForegroundColor Cyan
+    scoop update
+    Write-Host "[scoop] Updating all packages..." -ForegroundColor Cyan
+    scoop update --all
+    Write-Host "[scoop] Cleaning old versions..." -ForegroundColor Cyan
+    scoop cleanup --all
+    Write-Host "[scoop] Clearing cache..." -ForegroundColor Cyan
+    scoop cache rm *
+    Write-Host "[scoop] Done." -ForegroundColor Green
+}
+
+function winget-ultimate {
+    Write-Host "[winget] Updating sources..." -ForegroundColor Cyan
+    winget source update
+    Write-Host "[winget] Upgrading all packages..." -ForegroundColor Cyan
+    winget upgrade --all --accept-source-agreements --accept-package-agreements --silent
+    Write-Host "[winget] Done." -ForegroundColor Green
+}
+
+function store-ultimate {
+    Write-Host "[store] Applying Microsoft Store updates..." -ForegroundColor Cyan
+    store updates --apply
+    Write-Host "[store] Done." -ForegroundColor Green
+}
+
+function windows-ultimate {
+    scoop-ultimate
+    winget-ultimate
+    store-ultimate
+    windows-backup
+}
+
+function windows-backup {
+    $backupDir = "{{ dotfiles_repo_dest }}\backup"
+    if (-not (Test-Path $backupDir)) { New-Item -ItemType Directory $backupDir | Out-Null }
+    Write-Host "[backup] Saving Scoop list..." -ForegroundColor Cyan
+    scoop list > "$backupDir\scoop_backup.txt"
+    Write-Host "[backup] Saving Winget list..." -ForegroundColor Cyan
+    winget list > "$backupDir\winget_backup.txt"
+    Write-Host "[backup] Saved to $backupDir" -ForegroundColor Green
+}
+
+{% if feature_msys2 | bool %}
+# ── MSYS2 ─────────────────────────────────────────────────────────────────────
+function msys {
+    & "{{ msys2_root }}\msys2_shell.cmd" -shell {{ msys2_default_shell }} @args
+}
+{% endif %}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Shell Initialisation
+# ─────────────────────────────────────────────────────────────────────────────
+# System info on new shell
+if (Get-Command fastfetch -ErrorAction SilentlyContinue) {
+    fastfetch
+}
+
+# Starship prompt
+{% if feature_starship | bool %}
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+    Invoke-Expression (&starship init powershell)
+}
+{% endif %}

@@ -1,0 +1,33 @@
+---
+# ── User identity ─────────────────────────────────────────────────────────────
+user_name: "Divit Mittal"
+user_shell: "pwsh"
+default_editor: "vim"
+visual_editor: "vim"
+
+# ── XDG base dirs (mirrored on Windows) ──────────────────────────────────────
+# These resolve at runtime using ansible_env gathered from the target
+xdg_config_home: "{{ ansible_env.USERPROFILE }}\\.config"
+xdg_data_home:   "{{ ansible_env.USERPROFILE }}\\.local\\share"
+xdg_cache_home:  "{{ ansible_env.USERPROFILE }}\\.cache"
+xdg_state_home:  "{{ ansible_env.USERPROFILE }}\\.local\\state"
+xdg_bin_home:    "{{ ansible_env.USERPROFILE }}\\.local\\bin"
+
+# ── Source repository ─────────────────────────────────────────────────────────
+# Used when seeding config files that don't have Ansible-managed templates
+dotfiles_repo_url:  "https://github.com/div/sync-windows.git"
+dotfiles_repo_dest: "{{ ansible_env.USERPROFILE }}\\sync-windows"
+
+# ── Feature flags ─────────────────────────────────────────────────────────────
+# Toggle entire subsystems without removing tasks
+feature_scoop:            true
+feature_winget:           true
+feature_msys2:            true
+feature_wezterm:          true
+feature_starship:         true
+feature_firefox:          true
+feature_tridactyl:        true
+feature_whkd:             true
+feature_kanata:           false   # Legacy — disabled by default
+feature_windows_settings: true
+feature_git_config:       true

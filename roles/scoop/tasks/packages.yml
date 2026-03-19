@@ -1,0 +1,83 @@
+---
+# ── Scoop Package Installation ────────────────────────────────────────────────
+# Uses community.windows.win_scoop when available, with a win_shell fallback.
+# The community module provides true idempotency (state: present/absent/latest).
+
+- name: Gather installed Scoop packages
+  ansible.windows.win_shell: scoop list
+  register: scoop_installed_raw
+  changed_when: false
+
+# Build a list of installed package names for fast membership checks.
+# `scoop list` output looks like: "  name    version  bucket  updated"
+- name: Parse installed package names
+  ansible.builtin.set_fact:
+    scoop_installed_names: >-
+      {{
+        scoop_installed_raw.stdout_lines
+        | map('trim')
+        | select('match', '^[A-Za-z0-9]')
+        | map('split', ' ')
+        | map('first')
+        | map('lower')
+        | list
+      }}
+
+- name: Compute packages that need to be installed
+  ansible.builtin.set_fact:
+    scoop_missing_packages: >-
+      {{
+        (scoop_packages + (scoop_packages_extra | default([])))
+        | selectattr('name', 'defined')
+        | rejectattr('name', 'in', scoop_installed_names)
+        | list
+      }}
+
+- name: Report packages to install
+  ansible.builtin.debug:
+    msg: >
+      {{ scoop_missing_packages | length }} package(s) to install:
+      {{ scoop_missing_packages | map(attribute='name') | join(', ') }}
+  when: scoop_missing_packages | length > 0
+
+- name: Install missing Scoop packages
+  block:
+    - name: Install package via Scoop
+      ansible.windows.win_shell: >
+        scoop install
+        {% if item.bucket is defined %}{{ item.bucket }}/{% endif %}{{ item.name }}
+        {% if item.version is defined %}@{{ item.version }}{% endif %}
+      register: scoop_pkg_result
+      changed_when: "'already installed' not in scoop_pkg_result.stdout"
+      failed_when:
+        - scoop_pkg_result.rc != 0
+        - "'already installed' not in scoop_pkg_result.stdout"
+      retries: "{{ scoop_install_retries }}"
+      delay: "{{ scoop_install_delay }}"
+      until: scoop_pkg_result is not failed
+      loop: "{{ scoop_missing_packages }}"
+      loop_control:
+        label: "{{ item.name }} ({{ item.category | default('misc') }})"
+
+  rescue:
+    - name: Collect failed packages
+      ansible.builtin.set_fact:
+        scoop_failed: >-
+          {{
+            scoop_pkg_result.results
+            | selectattr('failed', 'true')
+            | map(attribute='item.name')
+            | list
+          }}
+
+    - name: Warn about failed package installations
+      ansible.builtin.debug:
+        msg: >
+          WARNING: The following Scoop packages failed to install and will be
+          skipped: {{ scoop_failed | join(', ') }}.
+          Check network access or bucket availability and retry.
+
+- name: Clean old versions after install
+  ansible.windows.win_shell: scoop cleanup --all
+  changed_when: false
+  when: scoop_cleanup_after | bool

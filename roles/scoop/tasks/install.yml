@@ -1,0 +1,6 @@
+---
+- name: Self-update Scoop
+  ansible.windows.win_shell: scoop update
+  register: scoop_self_update
+  changed_when: "'Scoop was updated successfully' in scoop_self_update.stdout"
+  when: scoop_update_self | bool

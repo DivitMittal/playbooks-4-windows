@@ -1,0 +1,90 @@
+---
+# ── site.yml — Master Playbook ────────────────────────────────────────────────
+# Runs the full configuration stack in dependency order.
+# Selectively run subsets with tags:
+#
+#   ansible-playbook playbooks/site.yml --tags bootstrap
+#   ansible-playbook playbooks/site.yml --tags dotfiles,git
+#   ansible-playbook playbooks/site.yml --tags packages
+#   ansible-playbook playbooks/site.yml --tags update
+#   ansible-playbook playbooks/site.yml --skip-tags firefox
+#
+# Dry-run with:
+#   ansible-playbook playbooks/site.yml --check --diff
+
+- name: Full workstation provisioning
+  hosts: windows
+  gather_facts: true
+  any_errors_fatal: false
+
+  # Module-level defaults — apply to all win_* tasks unless overridden
+  module_defaults:
+    ansible.windows.win_copy:
+      force: true
+    ansible.windows.win_file:
+      state: directory
+
+  pre_tasks:
+    - name: Assert Ansible version is sufficient
+      ansible.builtin.assert:
+        that:
+          - ansible_version.full is version('2.16', '>=')
+        fail_msg: >
+          This project requires ansible-core >= 2.16.
+          Found: {{ ansible_version.full }}
+        success_msg: "ansible-core {{ ansible_version.full }} ✓"
+      tags: always
+
+    - name: Assert target OS is Windows
+      ansible.builtin.assert:
+        that:
+          - ansible_os_family == "Windows"
+        fail_msg: >
+          This project targets Windows only.
+          Detected OS family: {{ ansible_os_family }}
+        success_msg: "Windows target confirmed ✓"
+      tags: always
+
+    - name: Display host summary
+      ansible.builtin.debug:
+        msg:
+          - "Host        : {{ inventory_hostname }}"
+          - "OS          : {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "PS version  : {{ ansible_powershell_version }}"
+          - "USERPROFILE : {{ ansible_env.USERPROFILE }}"
+      tags: always
+
+  roles:
+    - role: bootstrap
+      tags: [bootstrap]
+
+    - role: windows_settings
+      tags: [windows, settings]
+      when: feature_windows_settings | bool
+
+    - role: scoop
+      tags: [packages, scoop]
+      when: feature_scoop | bool
+
+    - role: winget
+      tags: [packages, winget]
+      when: feature_winget | bool
+
+    - role: msys2
+      tags: [packages, msys2]
+      when: feature_msys2 | bool
+
+    - role: dotfiles
+      tags: [dotfiles]
+
+  post_tasks:
+    - name: Flush all pending handlers
+      ansible.builtin.meta: flush_handlers
+      tags: always
+
+    - name: Provisioning complete
+      ansible.builtin.debug:
+        msg: >
+          ✓ Provisioning finished for {{ inventory_hostname }}.
+          Run 'make verify' to validate the final state.
+      tags: always

@@ -1,0 +1,14 @@
+---
+- name: Run prerequisites checks
+  ansible.builtin.import_tasks: prerequisites.yml
+  tags: [bootstrap, prereq]
+
+- name: Configure WinRM (remote management)
+  ansible.builtin.import_tasks: winrm.yml
+  when: bootstrap_configure_winrm | bool
+  tags: [bootstrap, winrm]
+
+- name: Install Scoop package manager
+  ansible.builtin.import_tasks: scoop_install.yml
+  when: bootstrap_install_scoop | bool
+  tags: [bootstrap, scoop]

@@ -1,0 +1,33 @@
+---
+# ── Windows Explorer preferences ─────────────────────────────────────────────
+# All settings under HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+
+- name: Configure Explorer advanced options
+  ansible.windows.win_regedit:
+    path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: "{{ item.name }}"
+    data: "{{ item.data }}"
+    type: dword
+  loop:
+    - name: HideFileExt
+      data: "{{ 0 if explorer_show_extensions else 1 }}"
+    - name: Hidden
+      data: "{{ 1 if explorer_show_hidden else 2 }}"
+    - name: ShowSuperHidden
+      data: "{{ 1 if explorer_show_protected else 0 }}"
+    - name: NavPaneExpandToCurrentFolder
+      data: "{{ 1 if explorer_expand_to_current else 0 }}"
+    - name: LaunchTo
+      data: "{{ explorer_launch_to }}"
+    # Show full path in title bar
+    - name: FullPath
+      data: 1
+    # Show full path in address bar
+    - name: FullPathAddress
+      data: 1
+    # Disable "shake to minimise" (accidental trigger)
+    - name: DisallowShaking
+      data: 1
+  loop_control:
+    label: "{{ item.name }} = {{ item.data }}"
+  notify: restart explorer

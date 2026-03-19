@@ -1,0 +1,10 @@
+---
+- name: Verify winget is available
+  ansible.windows.win_command: winget --version
+  register: winget_check
+  changed_when: false
+  failed_when: winget_check.rc != 0
+
+- name: Manage winget packages
+  ansible.builtin.import_tasks: packages.yml
+  tags: [winget]

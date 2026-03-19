@@ -1,0 +1,69 @@
+---
+# ── Prerequisites ─────────────────────────────────────────────────────────────
+
+- name: Gather OS facts
+  ansible.windows.win_setup:
+    gather_subset:
+      - min
+      - hardware
+  tags: always
+
+- name: Assert Windows 10 or later
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution is search("Windows")
+      - ansible_distribution_version is version('10.0', '>=')
+    fail_msg: "Windows 10/11/Server 2019+ required. Found: {{ ansible_distribution_version }}"
+    success_msg: "OS version {{ ansible_distribution_version }} ✓"
+
+- name: Set PowerShell execution policy
+  ansible.windows.win_shell: |
+    $current = Get-ExecutionPolicy -Scope CurrentUser
+    if ($current -ne '{{ bootstrap_ps_execution_policy }}') {
+      Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy {{ bootstrap_ps_execution_policy }} -Force
+    }
+  register: ps_policy_result
+  changed_when: "'already set' not in ps_policy_result.stdout | default('')"
+
+- name: Verify execution policy was applied
+  ansible.windows.win_shell: Get-ExecutionPolicy -Scope CurrentUser
+  register: ps_policy_check
+  changed_when: false
+  failed_when: ps_policy_check.stdout | trim != bootstrap_ps_execution_policy
+
+- name: Ensure NuGet provider is present (required for PSGallery)
+  ansible.windows.win_shell: |
+    $installed = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
+    if (-not $installed -or $installed.Version -lt [version]'{{ bootstrap_nuget_min_version }}') {
+      Install-PackageProvider -Name NuGet -MinimumVersion {{ bootstrap_nuget_min_version }} -Force | Out-Null
+      "installed"
+    } else {
+      "already present"
+    }
+  register: nuget_result
+  changed_when: "'installed' in nuget_result.stdout"
+  when: bootstrap_install_psgallery | bool
+
+- name: Trust PSGallery repository
+  ansible.windows.win_shell: |
+    $repo = Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue
+    if ($repo.InstallationPolicy -ne 'Trusted') {
+      Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+      "set trusted"
+    } else {
+      "already trusted"
+    }
+  register: psgallery_result
+  changed_when: "'set trusted' in psgallery_result.stdout"
+  when: bootstrap_install_psgallery | bool
+
+- name: Create XDG base directories
+  ansible.windows.win_file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ xdg_config_home }}"
+    - "{{ xdg_data_home }}"
+    - "{{ xdg_cache_home }}"
+    - "{{ xdg_state_home }}"
+    - "{{ xdg_bin_home }}"

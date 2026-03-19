@@ -1,0 +1,12 @@
+# Python dependencies for the Ansible control node (macOS/Linux)
+# Install with: pip install -r requirements.txt
+
+ansible>=9.0.0          # Core Ansible (includes ansible-core >=2.16)
+pywinrm>=0.4.3          # WinRM transport for Windows targets
+requests>=2.31.0        # HTTP library (pywinrm dependency)
+requests-credssp>=2.0.0 # CredSSP auth (alternative to NTLM for double-hop scenarios)
+jmespath>=1.0.1         # Required for json_query Jinja2 filter
+passlib>=1.7.4          # Password hashing utilities
+ansible-lint>=6.22.0    # Linting — catch issues before running
+molecule>=6.0.0         # Testing framework (optional, for role testing)
+molecule-plugins>=23.0.0 # Molecule driver plugins

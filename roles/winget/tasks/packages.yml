@@ -1,0 +1,39 @@
+---
+# ── Winget Package Installation ───────────────────────────────────────────────
+# winget has no native Ansible module (as of ansible.windows 2.x), so we use
+# win_shell with idempotency guards based on `winget list` output.
+
+- name: Gather installed packages from winget
+  ansible.windows.win_shell: winget list --accept-source-agreements
+  register: winget_installed_raw
+  changed_when: false
+  # winget list can return rc=1 with valid output when sources are stale
+  failed_when: false
+
+- name: Install required winget packages
+  ansible.windows.win_shell: >
+    winget install
+    --id {{ item.id }}
+    --source {{ item.source | default('winget') }}
+    --silent
+    --accept-package-agreements
+    --accept-source-agreements
+    {% if item.override is defined %}--override "{{ item.override }}"{% endif %}
+  register: winget_result
+  # winget exits 0 on success, -1978335189 (0x8A150023) when already installed
+  changed_when:
+    - winget_result.rc == 0
+    - "'already installed' not in winget_result.stdout | lower"
+  failed_when:
+    - winget_result.rc != 0
+    - winget_result.rc != -1978335189
+    - "'already installed' not in winget_result.stdout | lower"
+    - "'no available upgrade' not in winget_result.stdout | lower"
+  retries: "{{ winget_install_retries }}"
+  delay: "{{ winget_install_delay }}"
+  until: winget_result is not failed
+  loop: "{{ winget_packages }}"
+  loop_control:
+    label: "{{ item.id }}"
+  # Skip packages that are clearly already installed (string match is fast)
+  when: item.id not in winget_installed_raw.stdout | default('')

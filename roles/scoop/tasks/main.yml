@@ -1,0 +1,12 @@
+---
+- name: Update Scoop before managing packages
+  ansible.builtin.import_tasks: install.yml
+  tags: [scoop]
+
+- name: Manage Scoop buckets
+  ansible.builtin.import_tasks: buckets.yml
+  tags: [scoop, scoop-buckets]
+
+- name: Install Scoop packages
+  ansible.builtin.import_tasks: packages.yml
+  tags: [scoop, scoop-packages]

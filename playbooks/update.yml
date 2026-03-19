@@ -1,0 +1,172 @@
+---
+# ── update.yml ────────────────────────────────────────────────────────────────
+# Update all installed packages to their latest versions.
+# This is the Ansible-managed equivalent of `windows-ultimate` in the
+# PowerShell profile — idempotent, logged, and diff-aware.
+#
+# The `update` tag gates all upgrade tasks so they're excluded from
+# normal `site.yml` runs (which only ensure packages are present, not latest).
+#
+# Usage:
+#   ansible-playbook playbooks/update.yml
+#   ansible-playbook playbooks/update.yml --tags scoop
+#   ansible-playbook playbooks/update.yml --tags winget
+
+- name: Update all packages
+  hosts: windows
+  gather_facts: true
+
+  vars:
+    # Backup package lists to the local project directory before updating
+    backup_before_update: true
+    backup_dest: "{{ playbook_dir }}/../backup"
+
+  pre_tasks:
+    - name: Ensure backup directory exists (on control node)
+      ansible.builtin.file:
+        path: "{{ backup_dest }}"
+        state: directory
+        mode: "0755"
+      delegate_to: localhost
+      run_once: true
+      when: backup_before_update | bool
+      tags: always
+
+    - name: Capture Scoop package list before update
+      ansible.windows.win_shell: scoop list
+      register: scoop_list_before
+      changed_when: false
+      when:
+        - feature_scoop | bool
+        - backup_before_update | bool
+      tags: [update, scoop]
+
+    - name: Save pre-update Scoop snapshot
+      ansible.builtin.copy:
+        content: "{{ scoop_list_before.stdout }}"
+        dest: "{{ backup_dest }}/scoop_backup.txt"
+        mode: "0644"
+      delegate_to: localhost
+      when:
+        - feature_scoop | bool
+        - backup_before_update | bool
+        - scoop_list_before is not skipped
+      tags: [update, scoop]
+
+    - name: Capture Winget package list before update
+      ansible.windows.win_shell: winget list
+      register: winget_list_before
+      changed_when: false
+      when:
+        - feature_winget | bool
+        - backup_before_update | bool
+      tags: [update, winget]
+
+    - name: Save pre-update Winget snapshot
+      ansible.builtin.copy:
+        content: "{{ winget_list_before.stdout }}"
+        dest: "{{ backup_dest }}/winget_backup.txt"
+        mode: "0644"
+      delegate_to: localhost
+      when:
+        - feature_winget | bool
+        - backup_before_update | bool
+        - winget_list_before is not skipped
+      tags: [update, winget]
+
+  tasks:
+    # ── Scoop Update ──────────────────────────────────────────────────────────
+    - name: Update Scoop itself
+      ansible.windows.win_shell: scoop update
+      register: scoop_self_update
+      changed_when: "'Scoop was updated successfully' in scoop_self_update.stdout"
+      when: feature_scoop | bool
+      tags: [update, scoop]
+
+    - name: Update all Scoop packages
+      ansible.windows.win_shell: scoop update --all
+      register: scoop_pkg_update
+      # Scoop outputs "Everything is up to date!" when nothing changed
+      changed_when: "'Everything is up to date' not in scoop_pkg_update.stdout"
+      when: feature_scoop | bool
+      tags: [update, scoop]
+
+    - name: Clean old Scoop package versions
+      ansible.windows.win_shell: scoop cleanup --all
+      changed_when: false   # Cleanup is always idempotent for our purposes
+      when: feature_scoop | bool
+      tags: [update, scoop]
+
+    - name: Clear Scoop download cache
+      ansible.windows.win_shell: scoop cache rm *
+      changed_when: false
+      when: feature_scoop | bool
+      tags: [update, scoop]
+
+    # ── Winget Update ─────────────────────────────────────────────────────────
+    - name: Update Winget sources
+      ansible.windows.win_shell: winget source update
+      register: winget_src_update
+      changed_when: false
+      failed_when:
+        - winget_src_update.rc != 0
+        - "'No applicable update found' not in winget_src_update.stderr"
+      when: feature_winget | bool
+      tags: [update, winget]
+
+    - name: Upgrade all Winget packages
+      ansible.windows.win_shell: >
+        winget upgrade --all --accept-source-agreements --accept-package-agreements --silent
+      register: winget_upgrade
+      changed_when: "'No applicable upgrade found' not in winget_upgrade.stdout"
+      when: feature_winget | bool
+      tags: [update, winget]
+
+    # ── Microsoft Store Update ────────────────────────────────────────────────
+    - name: Apply Microsoft Store updates
+      ansible.windows.win_shell: >
+        Get-CimInstance -Namespace "Root\cimv2\mdm\dmmap"
+        -ClassName "MDM_EnterpriseModernAppManagement_AppManagement01" |
+        Invoke-CimMethod -MethodName UpdateScanMethod
+      register: store_update
+      changed_when: false
+      ignore_errors: true   # Store management APIs can be unreliable
+      tags: [update, store]
+
+    # ── MSYS2 Update ──────────────────────────────────────────────────────────
+    - name: Update all MSYS2 packages
+      ansible.windows.win_shell: >
+        {{ msys2_root }}\usr\bin\bash.exe -l -c "pacman -Syu --noconfirm"
+      register: msys2_update
+      changed_when: "'there is nothing to do' not in msys2_update.stdout | lower"
+      when: feature_msys2 | bool
+      tags: [update, msys2]
+
+  post_tasks:
+    - name: Capture Scoop package list after update
+      ansible.windows.win_shell: scoop list
+      register: scoop_list_after
+      changed_when: false
+      when:
+        - feature_scoop | bool
+        - backup_before_update | bool
+      tags: [update, scoop]
+
+    - name: Save post-update Scoop snapshot
+      ansible.builtin.copy:
+        content: "{{ scoop_list_after.stdout }}"
+        dest: "{{ backup_dest }}/scoop_backup_after.txt"
+        mode: "0644"
+      delegate_to: localhost
+      when:
+        - feature_scoop | bool
+        - backup_before_update | bool
+        - scoop_list_after is not skipped
+      tags: [update, scoop]
+
+    - name: Update complete
+      ansible.builtin.debug:
+        msg:
+          - "Package update complete for {{ inventory_hostname }}"
+          - "Backups saved to: {{ backup_dest }}"
+      tags: always

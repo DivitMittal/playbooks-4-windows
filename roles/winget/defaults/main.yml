@@ -1,0 +1,4 @@
+---
+winget_accept_agreements: true
+winget_install_retries: 2
+winget_install_delay: 5

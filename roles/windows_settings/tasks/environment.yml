@@ -1,0 +1,58 @@
+---
+# ── User-scoped environment variables ────────────────────────────────────────
+# These match what Profile.ps1 sets at runtime, but persisted in the registry
+# so they're available to all processes, not just PowerShell sessions.
+
+- name: Set EDITOR environment variable
+  ansible.windows.win_environment:
+    name: EDITOR
+    value: "{{ default_editor }}"
+    level: user
+
+- name: Set VISUAL environment variable
+  ansible.windows.win_environment:
+    name: VISUAL
+    value: "{{ visual_editor }}"
+    level: user
+
+- name: Set SHELL environment variable
+  ansible.windows.win_environment:
+    name: SHELL
+    value: "{{ user_shell }}"
+    level: user
+
+- name: Set XDG_CONFIG_HOME
+  ansible.windows.win_environment:
+    name: XDG_CONFIG_HOME
+    value: "{{ xdg_config_home }}"
+    level: user
+
+- name: Set XDG_DATA_HOME
+  ansible.windows.win_environment:
+    name: XDG_DATA_HOME
+    value: "{{ xdg_data_home }}"
+    level: user
+
+- name: Set XDG_CACHE_HOME
+  ansible.windows.win_environment:
+    name: XDG_CACHE_HOME
+    value: "{{ xdg_cache_home }}"
+    level: user
+
+- name: Set XDG_STATE_HOME
+  ansible.windows.win_environment:
+    name: XDG_STATE_HOME
+    value: "{{ xdg_state_home }}"
+    level: user
+
+- name: Set STARSHIP_CONFIG (explicit override to XDG path)
+  ansible.windows.win_environment:
+    name: STARSHIP_CONFIG
+    value: "{{ starship_config }}"
+    level: user
+
+- name: Set GIT_CONFIG_GLOBAL (explicit override to XDG path)
+  ansible.windows.win_environment:
+    name: GIT_CONFIG_GLOBAL
+    value: "{{ git_config_dir }}\\config"
+    level: user

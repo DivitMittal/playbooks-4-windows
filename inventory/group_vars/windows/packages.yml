@@ -1,0 +1,169 @@
+---
+# ── Scoop ─────────────────────────────────────────────────────────────────────
+# Buckets must be added before packages that depend on them.
+# Order matters: main → extras → nerd-fonts → versions
+scoop_buckets:
+  - name: main
+  - name: extras
+  - name: nerd-fonts
+  - name: versions
+
+# Each entry supports `name`, `bucket`, and optional `version` to pin.
+# Omit `version` to always track latest.
+scoop_packages:
+
+  # ── Development ────────────────────────────────────────────────────────────
+  - name: git
+    bucket: main
+    category: dev
+
+  - name: nodejs
+    bucket: main
+    category: dev
+
+  - name: python
+    bucket: main
+    category: dev
+
+  - name: vim
+    bucket: main
+    category: dev
+
+  - name: pwsh
+    bucket: main
+    category: dev
+    # Pin major version to avoid surprise breaking changes
+    # version: "7.4.6"
+
+  # ── CLI Utilities ──────────────────────────────────────────────────────────
+  - name: 7zip
+    bucket: main
+    category: util
+
+  - name: ouch
+    bucket: main
+    category: util
+    # Universal archive decompressor
+
+  - name: nircmd
+    bucket: main
+    category: util
+
+  - name: sudo
+    bucket: main
+    category: util
+
+  - name: innounp
+    bucket: main
+    category: util
+
+  # ── Development Environment ────────────────────────────────────────────────
+  - name: msys2
+    bucket: main
+    category: dev-env
+
+  - name: mingw-winlibs-llvm-ucrt
+    bucket: main
+    category: dev-env
+    # Full MinGW64 toolchain with LLVM/Clang
+
+  - name: whkd
+    bucket: extras
+    category: wm
+    # Window Hotkey Daemon — required for window management keybindings
+
+  # ── Applications ──────────────────────────────────────────────────────────
+  - name: wezterm
+    bucket: extras
+    category: app
+
+  - name: firefox
+    bucket: extras
+    category: app
+
+  - name: starship
+    bucket: main
+    category: shell
+
+  - name: fastfetch
+    bucket: extras
+    category: shell
+
+  - name: dark
+    bucket: extras
+    category: app
+    # Windows dark/light theme switcher
+
+  - name: onlyoffice-desktopeditors
+    bucket: extras
+    category: app
+
+  - name: localsend
+    bucket: extras
+    category: app
+
+  - name: throttlestop
+    bucket: extras
+    category: util
+    # CPU power management — laptop specific
+
+  - name: psshutdown
+    bucket: extras
+    category: util
+
+  # ── Fonts ─────────────────────────────────────────────────────────────────
+  - name: Cascadia-Code
+    bucket: nerd-fonts
+    category: font
+
+# ── Winget ────────────────────────────────────────────────────────────────────
+# Prefer Scoop for CLI tools; Winget for GUI apps and Microsoft products
+# that integrate better with the Windows Update / MSIX ecosystem.
+winget_packages:
+
+  - id: Microsoft.WindowsTerminal
+    source: winget
+    category: app
+
+  - id: Microsoft.PowerBI
+    source: winget
+    category: app
+
+  - id: Microsoft.VisualStudioCode
+    source: winget
+    category: dev
+    override: "--silent"
+
+  # Microsoft Visual C++ Redistributables — many apps silently require these
+  - id: Microsoft.VCRedist.2015+.x64
+    source: winget
+    category: runtime
+
+  - id: Microsoft.VCRedist.2015+.x86
+    source: winget
+    category: runtime
+
+  - id: Microsoft.DotNet.Runtime.8
+    source: winget
+    category: runtime
+
+  # ── Optional: available but off by default ─────────────────────────────────
+  # - id: Valve.Steam
+  #   source: winget
+  #   category: gaming
+
+# ── MSYS2 / Pacman ────────────────────────────────────────────────────────────
+# Packages installed inside the MSYS2 environment via pacman.
+# Use mingw-w64-x86_64- prefix for native 64-bit binaries.
+msys2_packages:
+  - base
+  - filesystem
+  - msys2-runtime
+
+  # Fish shell (launched via `msys` alias)
+  - fish
+
+  # Useful POSIX tools not available natively on Windows
+  - ripgrep
+  - fd
+  - tree

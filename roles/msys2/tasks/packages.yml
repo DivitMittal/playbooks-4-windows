@@ -1,0 +1,45 @@
+---
+# ── MSYS2 Package Management via Pacman ──────────────────────────────────────
+
+- name: Pacman system upgrade
+  ansible.windows.win_shell: >
+    {{ msys2_root }}\usr\bin\bash.exe -l -c
+    "pacman -Syu --noconfirm 2>&1"
+  register: msys2_upgrade
+  changed_when: "'there is nothing to do' not in msys2_upgrade.stdout | lower"
+  failed_when:
+    - msys2_upgrade.rc != 0
+    - "'error' in msys2_upgrade.stdout | lower"
+  when: msys2_sysupgrade | bool
+
+- name: Gather installed MSYS2 packages
+  ansible.windows.win_shell: >
+    {{ msys2_root }}\usr\bin\bash.exe -l -c "pacman -Q 2>&1"
+  register: msys2_installed_raw
+  changed_when: false
+
+- name: Parse installed package names
+  ansible.builtin.set_fact:
+    msys2_installed_names: >-
+      {{
+        msys2_installed_raw.stdout_lines
+        | map('trim')
+        | select('match', '^[A-Za-z0-9]')
+        | map('split', ' ')
+        | map('first')
+        | list
+      }}
+
+- name: Install missing MSYS2 packages
+  ansible.windows.win_shell: >
+    {{ msys2_root }}\usr\bin\bash.exe -l -c
+    "pacman -S --noconfirm {{ item }} 2>&1"
+  register: pacman_install
+  changed_when: "'is up to date -- skipping' not in pacman_install.stdout"
+  retries: "{{ msys2_install_retries }}"
+  delay: 3
+  until: pacman_install is not failed
+  loop: "{{ msys2_packages }}"
+  loop_control:
+    label: "{{ item }}"
+  when: item not in msys2_installed_names

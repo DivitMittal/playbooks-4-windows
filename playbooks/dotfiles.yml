@@ -1,0 +1,18 @@
+---
+# ── dotfiles.yml ──────────────────────────────────────────────────────────────
+# Deploy only configuration files — no package management.
+# Fastest playbook for iterating on config changes.
+#
+# Usage:
+#   ansible-playbook playbooks/dotfiles.yml
+#   ansible-playbook playbooks/dotfiles.yml --tags git
+#   ansible-playbook playbooks/dotfiles.yml --tags wezterm
+#   ansible-playbook playbooks/dotfiles.yml --diff   # show what changed
+
+- name: Deploy dotfiles
+  hosts: windows
+  gather_facts: true
+
+  roles:
+    - role: dotfiles
+      tags: [dotfiles, git, shell, terminal, firefox, wm]

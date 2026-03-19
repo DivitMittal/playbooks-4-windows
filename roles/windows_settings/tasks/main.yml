@@ -1,0 +1,16 @@
+---
+- name: Apply environment variables
+  ansible.builtin.import_tasks: environment.yml
+  tags: [settings, env]
+
+- name: Configure PATH
+  ansible.builtin.import_tasks: path.yml
+  tags: [settings, path]
+
+- name: Apply registry settings
+  ansible.builtin.import_tasks: registry.yml
+  tags: [settings, registry]
+
+- name: Configure Windows Explorer
+  ansible.builtin.import_tasks: explorer.yml
+  tags: [settings, explorer]

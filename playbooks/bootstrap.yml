@@ -1,0 +1,59 @@
+---
+# ── bootstrap.yml ─────────────────────────────────────────────────────────────
+# Intended for fresh Windows machines where nothing is yet configured.
+# This playbook should be idempotent — safe to re-run at any time.
+#
+# Before running this playbook on a remote machine, execute the WinRM
+# bootstrap script on the Windows target (as Administrator):
+#
+#   powershell -ExecutionPolicy Bypass -File scripts/bootstrap-winrm.ps1
+#
+# For local execution (WSL2):
+#   ansible-playbook playbooks/bootstrap.yml -c local
+
+- name: Bootstrap fresh Windows machine
+  hosts: windows
+  gather_facts: true
+
+  vars_prompt:
+    - name: confirm_bootstrap
+      prompt: >
+        This will configure WinRM, set execution policy, and install Scoop.
+        Continue? [yes/no]
+      private: false
+      default: "no"
+
+  pre_tasks:
+    - name: Abort if not confirmed
+      ansible.builtin.fail:
+        msg: "Bootstrap cancelled by user."
+      when: confirm_bootstrap | lower != 'yes'
+      tags: always
+
+    - name: Verify PowerShell 7 is available
+      ansible.windows.win_command: pwsh -NoLogo -Command "$PSVersionTable.PSVersion.Major"
+      register: ps_version_check
+      failed_when: ps_version_check.rc != 0
+      changed_when: false
+      tags: always
+
+    - name: Assert PowerShell major version >= 7
+      ansible.builtin.assert:
+        that:
+          - ps_version_check.stdout | trim | int >= 7
+        fail_msg: >
+          PowerShell 7+ is required (found: {{ ps_version_check.stdout | trim }}).
+          Install it from: https://aka.ms/powershell
+      tags: always
+
+  roles:
+    - role: bootstrap
+      tags: [bootstrap]
+
+  post_tasks:
+    - name: Bootstrap summary
+      ansible.builtin.debug:
+        msg:
+          - "Bootstrap complete for {{ inventory_hostname }}"
+          - "You can now run: ansible-playbook playbooks/site.yml"
+      tags: always

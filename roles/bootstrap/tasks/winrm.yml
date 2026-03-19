@@ -1,0 +1,98 @@
+---
+# ── WinRM Configuration ───────────────────────────────────────────────────────
+# Only needed when managing this machine remotely from macOS/Linux.
+# Safe to skip for local (WSL2) execution.
+
+- name: Ensure WinRM service exists and is running
+  ansible.windows.win_service:
+    name: WinRM
+    start_mode: auto
+    state: started
+
+- name: Enable WinRM HTTP listener (port 5985)
+  ansible.windows.win_shell: |
+    $listeners = Get-WSManInstance -ResourceURI winrm/config/listener -SelectorSet @{Transport='HTTP'} -ErrorAction SilentlyContinue
+    if (-not $listeners) {
+      winrm create winrm/config/listener?Address=*+Transport=HTTP
+      "created"
+    } else {
+      "exists"
+    }
+  register: winrm_http
+  changed_when: "'created' in winrm_http.stdout"
+  notify: restart winrm
+
+- name: Enable WinRM HTTPS listener (port 5986) — requires certificate
+  ansible.windows.win_shell: |
+    $cert = Get-ChildItem -Path Cert:\LocalMachine\My |
+      Where-Object { $_.Subject -like "*{{ ansible_hostname }}*" } |
+      Select-Object -First 1
+    if (-not $cert) {
+      $cert = New-SelfSignedCertificate -DnsName {{ ansible_hostname }} `
+              -CertStoreLocation Cert:\LocalMachine\My
+    }
+    $existing = Get-WSManInstance -ResourceURI winrm/config/listener `
+                -SelectorSet @{Transport='HTTPS'} -ErrorAction SilentlyContinue
+    if (-not $existing) {
+      New-WSManInstance -ResourceURI winrm/config/listener `
+        -SelectorSet @{Transport='HTTPS'; Address='*'} `
+        -ValueSet @{Hostname=$cert.Subject; CertificateThumbprint=$cert.Thumbprint}
+      "created"
+    } else {
+      "exists"
+    }
+  register: winrm_https
+  changed_when: "'created' in winrm_https.stdout"
+  notify: restart winrm
+
+- name: Allow WinRM through Windows Firewall (HTTP)
+  ansible.windows.win_shell: |
+    $rule = Get-NetFirewallRule -DisplayName "WinRM HTTP" -ErrorAction SilentlyContinue
+    if (-not $rule) {
+      New-NetFirewallRule -DisplayName "WinRM HTTP" -Direction Inbound `
+        -Protocol TCP -LocalPort 5985 -Action Allow
+      "created"
+    } else {
+      "exists"
+    }
+  register: fw_http
+  changed_when: "'created' in fw_http.stdout"
+
+- name: Allow WinRM through Windows Firewall (HTTPS)
+  ansible.windows.win_shell: |
+    $rule = Get-NetFirewallRule -DisplayName "WinRM HTTPS" -ErrorAction SilentlyContinue
+    if (-not $rule) {
+      New-NetFirewallRule -DisplayName "WinRM HTTPS" -Direction Inbound `
+        -Protocol TCP -LocalPort 5986 -Action Allow
+      "created"
+    } else {
+      "exists"
+    }
+  register: fw_https
+  changed_when: "'created' in fw_https.stdout"
+
+- name: Enable WinRM Basic auth (for NTLM)
+  ansible.windows.win_shell: |
+    $current = (Get-Item WSMan:\localhost\Service\Auth\Basic).Value
+    if ($current -ne 'true') {
+      Set-Item WSMan:\localhost\Service\Auth\Basic -Value $true
+      "enabled"
+    } else {
+      "already enabled"
+    }
+  register: winrm_basic
+  changed_when: "'enabled' in winrm_basic.stdout and 'already' not in winrm_basic.stdout"
+  notify: restart winrm
+
+- name: Set WinRM MaxMemoryPerShellMB to prevent OOM on large module output
+  ansible.windows.win_shell: |
+    $current = (Get-Item WSMan:\localhost\Shell\MaxMemoryPerShellMB).Value
+    if ([int]$current -lt 1024) {
+      Set-Item WSMan:\localhost\Shell\MaxMemoryPerShellMB -Value 1024
+      "updated"
+    } else {
+      "already sufficient: $current MB"
+    }
+  register: winrm_mem
+  changed_when: "'updated' in winrm_mem.stdout"
+  notify: restart winrm

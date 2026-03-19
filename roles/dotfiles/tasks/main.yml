@@ -1,0 +1,8 @@
+---
+- name: Ensure all config directories exist
+  ansible.builtin.import_tasks: directories.yml
+  tags: [dotfiles, dirs]
+
+- name: Deploy all configuration files
+  ansible.builtin.import_tasks: configs.yml
+  tags: [dotfiles, git, shell, terminal, firefox, wm]

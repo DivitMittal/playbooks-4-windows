@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  role_name: winget
+  description: Manage Windows Package Manager (winget) packages.
+  min_ansible_version: "2.16"
+
+dependencies: []

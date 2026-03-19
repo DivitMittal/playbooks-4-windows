@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  role_name: dotfiles
+  description: >
+    Deploy all user configuration files: PowerShell profile, git config,
+    Starship, Wezterm, Tridactyl, Fastfetch, whkd, and Firefox user.js.
+  min_ansible_version: "2.16"
+
+dependencies:
+  - role: windows_settings  # Ensure XDG dirs exist before deploying configs

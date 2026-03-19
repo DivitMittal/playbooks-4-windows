@@ -1,0 +1,23 @@
+---
+# Install with: ansible-galaxy collection install -r requirements.yml
+# Or via make: make deps
+
+collections:
+  # Core Windows support — win_* modules, win_regedit, win_feature, etc.
+  - name: ansible.windows
+    version: ">=2.0.0"
+
+  # Extended Windows support — win_scoop, win_chocolatey, win_toast, etc.
+  - name: community.windows
+    version: ">=2.0.0"
+
+  # General purpose — filesystem, ini_file, json_query, etc.
+  - name: community.general
+    version: ">=9.0.0"
+
+  # Crypto utilities — used for vault helpers and certificate management
+  - name: community.crypto
+    version: ">=2.0.0"
+
+roles: []
+# No external role dependencies — everything is self-contained in roles/

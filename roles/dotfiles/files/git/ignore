@@ -1,0 +1,38 @@
+# Global gitignore
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+desktop.ini
+Thumbs.db
+ehthumbs.db
+$RECYCLE.BIN/
+
+# ── Editors ───────────────────────────────────────────────────────────────────
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.suo
+*.user
+.vs/
+
+# ── Build / Runtime ───────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+node_modules/
+.direnv/
+result
+result-*
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+.env.*
+*.pem
+*.key
+!*.pub

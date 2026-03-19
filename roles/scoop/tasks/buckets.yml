@@ -1,0 +1,21 @@
+---
+# ── Scoop Bucket Management ───────────────────────────────────────────────────
+# Buckets are package repositories. `main` and `extras` are built-in.
+# Third-party buckets are added with `scoop bucket add <name> <url>`.
+
+- name: Gather currently added buckets
+  ansible.windows.win_shell: scoop bucket list
+  register: scoop_bucket_list
+  changed_when: false
+
+- name: Add missing Scoop buckets
+  ansible.windows.win_shell: >
+    scoop bucket add {{ item.name }}
+    {% if item.url is defined %}{{ item.url }}{% endif %}
+  register: bucket_add
+  # `scoop bucket add` exits 0 even if already present, so detect via output
+  changed_when: "'already exists' not in bucket_add.stdout"
+  loop: "{{ scoop_buckets }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.name not in scoop_bucket_list.stdout

@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: bootstrap
+  author: div
+  description: >
+    Bootstrap a fresh Windows machine: execution policy, WinRM, Scoop install.
+    Must run before any other role.
+  min_ansible_version: "2.16"
+  platforms:
+    - name: Windows
+      versions:
+        - "10"
+        - "11"
+        - "Server2022"
+
+dependencies: []

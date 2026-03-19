@@ -1,0 +1,89 @@
+---
+# ── Registry Settings ─────────────────────────────────────────────────────────
+# All writes use win_regedit which is fully idempotent — it only writes when
+# the current value differs from the desired value.
+
+# ── Developer Mode ────────────────────────────────────────────────────────────
+# Enables symlink creation without UAC prompt
+- name: Enable Windows Developer Mode
+  ansible.windows.win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock
+    name: AllowDevelopmentWithoutDevLicense
+    data: 1
+    type: dword
+  when: windows_developer_mode | bool
+
+# ── Telemetry ─────────────────────────────────────────────────────────────────
+- name: Set telemetry level
+  ansible.windows.win_regedit:
+    path: HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection
+    name: AllowTelemetry
+    data: "{{ windows_telemetry_level }}"
+    type: dword
+
+- name: Disable advertising ID
+  ansible.windows.win_regedit:
+    path: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo
+    name: Enabled
+    data: "{{ 0 if disable_advertising_id else 1 }}"
+    type: dword
+
+- name: Disable activity history
+  ansible.windows.win_regedit:
+    path: HKLM:\SOFTWARE\Policies\Microsoft\Windows\System
+    name: EnableActivityFeed
+    data: "{{ 0 if disable_activity_history else 1 }}"
+    type: dword
+
+# ── Context Menu ──────────────────────────────────────────────────────────────
+# Windows 11 uses a "simplified" context menu by default; this restores full menu
+- name: Restore full right-click context menu (Windows 11)
+  ansible.windows.win_regedit:
+    path: HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32
+    name: ""
+    data: ""
+    type: string
+  notify: restart explorer
+
+# ── Taskbar ───────────────────────────────────────────────────────────────────
+- name: Configure taskbar button combining
+  ansible.windows.win_regedit:
+    path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: TaskbarGlomLevel
+    data: "{{ taskbar_combine_buttons }}"
+    type: dword
+  notify: restart explorer
+
+- name: Configure taskbar search box visibility
+  ansible.windows.win_regedit:
+    path: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search
+    name: SearchboxTaskbarMode
+    data: "{{ taskbar_search_box_visible }}"
+    type: dword
+  notify: restart explorer
+
+# ── Power Plan ────────────────────────────────────────────────────────────────
+- name: Apply power plan
+  ansible.windows.win_shell: >
+    powercfg /setactive {{ power_plan_guid }}
+  register: power_plan_result
+  changed_when: power_plan_result.rc == 0
+  failed_when:
+    - power_plan_result.rc != 0
+    - "'is not found' not in power_plan_result.stderr"
+
+# ── AutoRun for new terminal windows ─────────────────────────────────────────
+# Disable Command Processor AutoRun (security hardening)
+- name: Clear CMD AutoRun registry key
+  ansible.windows.win_regedit:
+    path: HKCU:\SOFTWARE\Microsoft\Command Processor
+    name: AutoRun
+    state: absent
+
+# ── File Associations ─────────────────────────────────────────────────────────
+- name: Associate .toml files with vim
+  ansible.windows.win_regedit:
+    path: HKCU:\SOFTWARE\Classes\.toml
+    name: ""
+    data: "toml_auto_file"
+    type: string

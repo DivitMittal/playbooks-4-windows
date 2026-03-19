@@ -1,0 +1,20 @@
+---
+# ── bootstrap role defaults ───────────────────────────────────────────────────
+
+# Whether to configure WinRM (only needed for remote management)
+bootstrap_configure_winrm: false
+
+# PowerShell execution policy to set during bootstrap
+bootstrap_ps_execution_policy: "RemoteSigned"
+
+# Whether to install Scoop if not present
+bootstrap_install_scoop: true
+
+# The Git installer is always required as the first Scoop package
+bootstrap_git_package: git
+
+# NuGet provider version required by PowerShellGet
+bootstrap_nuget_min_version: "2.8.5.201"
+
+# Whether to install the PowerShellGet / PSGallery provider
+bootstrap_install_psgallery: true

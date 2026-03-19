@@ -1,0 +1,59 @@
+# {{ ansible_managed }}
+# Git global configuration — managed by Ansible
+# Do not edit by hand; changes will be overwritten on next run.
+
+[core]
+	editor        = nvim
+	excludesfile  = {{ xdg_config_home | replace('\\', '/') }}/.config/git/ignore
+	autocrlf      = false
+	eol           = lf
+	symlinks      = true
+
+[credential]
+	selected = manager
+
+[status]
+	showUntrackedFiles = no
+
+[safe]
+	directory = *
+
+[user]
+	name  = {{ user_name }}
+	email = {{ git_email }}
+{% if git_signing_key is defined and git_signing_key | length > 0 %}
+	signingkey = {{ git_signing_key }}
+
+[commit]
+	gpgsign = true
+{% endif %}
+
+[help]
+	autocorrect = 1
+
+[init]
+	defaultBranch = main
+
+[push]
+	autoSetupRemote = true
+
+[pull]
+	rebase = true
+
+[rebase]
+	autoStash = true
+
+[diff]
+	colorMoved = zebra
+
+[merge]
+	conflictstyle = zdiff3
+
+[alias]
+	graph    = log --oneline --graph --decorate --all
+	last     = log -1 HEAD
+	unstage  = restore --staged
+	clean-U  = clean -d -x -f
+
+[color]
+	ui = auto

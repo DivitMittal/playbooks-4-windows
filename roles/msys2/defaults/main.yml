@@ -1,0 +1,4 @@
+---
+# Whether to do a full system upgrade before installing packages
+msys2_sysupgrade: true
+msys2_install_retries: 2

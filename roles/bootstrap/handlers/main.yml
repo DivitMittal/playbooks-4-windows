@@ -1,0 +1,14 @@
+---
+- name: Restart WinRM service
+  ansible.windows.win_service:
+    name: WinRM
+    state: restarted
+  listen: "restart winrm"
+
+- name: Refresh environment variables
+  # Forces subsequent win_shell tasks to see the updated PATH without reconnecting
+  ansible.windows.win_shell: |
+    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine") + ";" +
+                [System.Environment]::GetEnvironmentVariable("PATH", "User")
+  changed_when: false
+  listen: "refresh env"

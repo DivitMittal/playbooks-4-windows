@@ -1,0 +1,33 @@
+---
+# ── Explorer / Shell ──────────────────────────────────────────────────────────
+# Show file extensions (off by default in Windows — a security concern)
+explorer_show_extensions: true
+# Show hidden files
+explorer_show_hidden: true
+# Show protected OS files (use with care)
+explorer_show_protected: false
+# Expand to current folder in navigation pane
+explorer_expand_to_current: true
+# Launch Explorer to "This PC" instead of "Quick Access"
+explorer_launch_to: 1  # 1 = This PC, 2 = Quick Access
+
+# ── Taskbar ───────────────────────────────────────────────────────────────────
+# Combine taskbar buttons: 0=always, 1=when full, 2=never
+taskbar_combine_buttons: 0
+# Hide search box (saves space, Win+S still works)
+taskbar_search_box_visible: 0
+
+# ── Privacy / Telemetry ───────────────────────────────────────────────────────
+# 0=Off, 1=Basic, 2=Enhanced, 3=Full
+windows_telemetry_level: 1
+disable_advertising_id: true
+disable_activity_history: true
+
+# ── Power ─────────────────────────────────────────────────────────────────────
+# Power plan GUID: Balanced=381b4222-f694-41f0-9685-ff5bb260df2e
+#                  High performance=8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+power_plan_guid: "381b4222-f694-41f0-9685-ff5bb260df2e"
+
+# ── Developer Mode ────────────────────────────────────────────────────────────
+# Required for symlinks without elevation
+windows_developer_mode: true

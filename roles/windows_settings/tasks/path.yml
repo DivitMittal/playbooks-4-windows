@@ -1,0 +1,41 @@
+---
+# ── PATH Management ───────────────────────────────────────────────────────────
+# win_path ensures idempotent, ordered PATH modifications.
+# Order matters: earlier entries shadow later ones.
+
+- name: Add ~/.local/bin to user PATH
+  ansible.windows.win_path:
+    elements: "{{ xdg_bin_home }}"
+    scope: user
+    state: present
+  notify: refresh env
+
+- name: Add Scoop shims to user PATH
+  ansible.windows.win_path:
+    elements: "{{ scoop_shims }}"
+    scope: user
+    state: present
+  notify: refresh env
+
+- name: Add MSYS2 mingw64 bin to user PATH
+  ansible.windows.win_path:
+    elements: "{{ msys2_mingw64 }}"
+    scope: user
+    state: present
+  when: feature_msys2 | bool
+  notify: refresh env
+
+- name: Verify PATH contents after update
+  ansible.windows.win_shell: |
+    $env:PATH -split ';' | Where-Object { $_ -ne '' }
+  register: path_contents
+  changed_when: false
+
+- name: Assert critical directories are on PATH
+  ansible.builtin.assert:
+    that:
+      - scoop_shims in path_contents.stdout_lines
+    fail_msg: >
+      Scoop shims not found on PATH after update.
+      Current PATH entries: {{ path_contents.stdout_lines | join(', ') }}
+    success_msg: "PATH is correctly configured ✓"
