@@ -30,4 +30,8 @@ __pycache__/
 
 ## Tools
 .serena/
+*.local.json
+
+## Nix
 .direnv/
+.pre-commit-config.yaml
