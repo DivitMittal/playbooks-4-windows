@@ -1,4 +1,35 @@
-# playbooks-4-windows
+<h1 align='center'>playbooks-4-windows</h1>
+<div align='center'>
+    <p></p>
+    <div align='center'>
+        <a href='https://github.com/DivitMittal/playbooks-4-windows'>
+            <img src='https://img.shields.io/github/repo-size/DivitMittal/playbooks-4-windows?&style=for-the-badge&logo=github'>
+        </a>
+        <a href='https://github.com/DivitMittal/playbooks-4-windows'>
+            <img src='https://img.shields.io/badge/ansible--core-%3E%3D2.15-EE0000?style=for-the-badge&logo=ansible'/>
+        </a>
+        <a href='https://github.com/ansible-collections/ansible.windows'>
+            <img src='https://img.shields.io/badge/ansible.windows-%3E%3D2.0-EE0000?style=for-the-badge&logo=ansible'/>
+        </a>
+        <a href='https://github.com/DivitMittal/playbooks-4-windows'>
+            <img src='https://img.shields.io/badge/Target-Windows%2010%2F11-0078D4?style=for-the-badge&logo=windows'/>
+        </a>
+    </div>
+    <br>
+</div>
+
+---
+
+<div align='center'>
+    <a href="https://github.com/DivitMittal/playbooks-4-windows/actions/workflows/flake-check.yml">
+        <img src="https://github.com/DivitMittal/playbooks-4-windows/actions/workflows/flake-check.yml/badge.svg" alt="nix-flake-check"/>
+    </a>
+    <a href="https://github.com/DivitMittal/playbooks-4-windows/actions/workflows/flake-lock-update.yml">
+        <img src="https://github.com/DivitMittal/playbooks-4-windows/actions/workflows/flake-lock-update.yml/badge.svg" alt="Update flake.lock"/>
+    </a>
+</div>
+
+---
 
 Ansible-based Windows dotfile and workstation provisioning. Manages a Windows 10/11 personal
 workstation from a macOS/Linux control node over WinRM, or locally via WSL2.
