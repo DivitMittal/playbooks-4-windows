@@ -1,5 +1,13 @@
 {
   "mcpServers": {
+    "ansible": {
+      "type": "stdio",
+      "command": "pnpm",
+      "args": ["dlx", "@ansible/ansible-mcp-server", "--stdio"],
+      "env": {
+        "WORKSPACE_ROOT": "~/Projects/playbooks-4-windows"
+      }
+    },
     "serena": {
       "type": "stdio",
       "command": "uvx",

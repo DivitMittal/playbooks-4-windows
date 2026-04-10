@@ -1,5 +1,6 @@
 {
   "enabledMcpjsonServers": [
+    "ansible",
     "serena"
   ],
   "enableAllProjectMcpServers": true
