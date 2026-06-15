@@ -1,5 +1,5 @@
 {
-  description = "{project-name} flake";
+  description = "playbooks-4-windows flake";
 
   outputs = inputs: let
     inherit (inputs.flake-parts.lib) mkFlake;
