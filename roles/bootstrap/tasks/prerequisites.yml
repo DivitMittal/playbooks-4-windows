@@ -2,7 +2,7 @@
 # ── Prerequisites ─────────────────────────────────────────────────────────────
 
 - name: Gather OS facts
-  ansible.windows.win_setup:
+  ansible.windows.setup:
     gather_subset:
       - min
       - hardware
