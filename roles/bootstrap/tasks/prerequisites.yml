@@ -11,10 +11,10 @@
 - name: Assert Windows 10 or later
   ansible.builtin.assert:
     that:
-      - ansible_distribution is search("Windows")
-      - ansible_distribution_version is version('10.0', '>=')
-    fail_msg: "Windows 10/11/Server 2019+ required. Found: {{ ansible_distribution_version }}"
-    success_msg: "OS version {{ ansible_distribution_version }} ✓"
+      - ansible_facts['distribution'] is search("Windows")
+      - ansible_facts['distribution_version'] is version('10.0', '>=')
+    fail_msg: "Windows 10/11/Server 2019+ required. Found: {{ ansible_facts['distribution_version'] }}"
+    success_msg: "OS version {{ ansible_facts['distribution_version'] }} ✓"
 
 - name: Set PowerShell execution policy
   ansible.windows.win_shell: |

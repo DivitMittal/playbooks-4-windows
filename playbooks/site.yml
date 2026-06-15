@@ -38,10 +38,10 @@
     - name: Assert target OS is Windows
       ansible.builtin.assert:
         that:
-          - ansible_os_family == "Windows"
+          - ansible_facts['os_family'] == "Windows"
         fail_msg: >
           This project targets Windows only.
-          Detected OS family: {{ ansible_os_family }}
+          Detected OS family: {{ ansible_facts['os_family'] }}
         success_msg: "Windows target confirmed ✓"
       tags: always
 
@@ -49,9 +49,9 @@
       ansible.builtin.debug:
         msg:
           - "Host        : {{ inventory_hostname }}"
-          - "OS          : {{ ansible_distribution }} {{ ansible_distribution_version }}"
-          - "PS version  : {{ ansible_powershell_version }}"
-          - "USERPROFILE : {{ ansible_env.USERPROFILE }}"
+          - "OS          : {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+          - "PS version  : {{ ansible_facts['powershell_version'] }}"
+          - "USERPROFILE : {{ ansible_facts['env']['USERPROFILE'] }}"
       tags: always
 
   roles:

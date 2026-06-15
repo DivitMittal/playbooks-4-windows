@@ -4,10 +4,10 @@ git_email:       "{{ vault_git_email }}"
 git_signing_key: "{{ vault_git_signing_key }}"
 
 # ── Windows path conventions ─────────────────────────────────────────────────
-userprofile:       "{{ ansible_env.USERPROFILE }}"
-appdata_roaming:   "{{ ansible_env.APPDATA }}"
-appdata_local:     "{{ ansible_env.LOCALAPPDATA }}"
-temp_dir:          "{{ ansible_env.TEMP }}"
+userprofile:       "{{ ansible_facts['env']['USERPROFILE'] }}"
+appdata_roaming:   "{{ ansible_facts['env']['APPDATA'] }}"
+appdata_local:     "{{ ansible_facts['env']['LOCALAPPDATA'] }}"
+temp_dir:          "{{ ansible_facts['env']['TEMP'] }}"
 
 # Derived convenience paths
 documents_dir:       "{{ userprofile }}\\Documents"
