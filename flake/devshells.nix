@@ -19,15 +19,23 @@
             ${config.pre-commit.installationScript}
           '';
         };
-        packages = lib.attrsets.attrValues {
-          inherit
-            (pkgs)
-            ### LSPs & Formatters
-            ## Nix
-            nixd
-            alejandra
-            ;
-        };
+        packages =
+          lib.attrsets.attrValues {
+            inherit
+              (pkgs)
+              ### LSPs & Formatters
+              ## Nix
+              nixd
+              alejandra
+              ## Ansible
+              ansible
+              ansible-lint
+              ;
+          }
+          ++ [
+            ## WinRM transport for Ansible → Windows
+            pkgs.python313Packages.pywinrm
+          ];
       };
     };
   };
