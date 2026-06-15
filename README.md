@@ -316,3 +316,9 @@ host_vars/windows_workstation.yml       (highest)
     group_vars/all/main.yml
       role defaults/main.yml            (lowest)
 ```
+
+---
+
+## Related Repositories
+
+- [DivitMittal/OS-nixCfg](https://github.com/DivitMittal/OS-nixCfg): Nix flake configurations for macOS (nix-darwin), NixOS/WSL, and Android (nix-on-droid). This Windows 11 boot is the triple-boot partner of the `L1` (macOS) and `T2` (NixOS) hosts defined there; the network topology of all machines is visualised via nix-topology in that repo.
