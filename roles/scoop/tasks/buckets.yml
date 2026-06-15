@@ -18,4 +18,4 @@
   loop: "{{ scoop_buckets }}"
   loop_control:
     label: "{{ item.name }}"
-  when: item.name not in scoop_bucket_list.stdout
+  when: item.name not in (scoop_bucket_list.stdout | default(''))

@@ -30,6 +30,7 @@
     $env:PATH -split ';' | Where-Object { $_ -ne '' }
   register: path_contents
   changed_when: false
+  when: not ansible_check_mode
 
 - name: Assert critical directories are on PATH
   ansible.builtin.assert:
@@ -39,3 +40,4 @@
       Scoop shims not found on PATH after update.
       Current PATH entries: {{ path_contents.stdout_lines | join(', ') }}
     success_msg: "PATH is correctly configured ✓"
+  when: not ansible_check_mode

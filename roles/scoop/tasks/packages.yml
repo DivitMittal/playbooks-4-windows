@@ -14,7 +14,7 @@
   ansible.builtin.set_fact:
     scoop_installed_names: >-
       {{
-        scoop_installed_raw.stdout_lines
+        (scoop_installed_raw.stdout_lines | default([]))
         | map('trim')
         | select('match', '^[A-Za-z0-9]')
         | map('split', ' ')
