@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Ansible role dependency graph</title><desc id="desc">Bootstrap installs Scoop, which enables MSYS2; Windows settings and dotfiles configure the workstation.</desc>
+  <defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#07111f"/><stop offset="1" stop-color="#18122b"/></linearGradient><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#a5f3fc"/></marker><style>text{font-family:Inter,Segoe UI,Arial,sans-serif;fill:#e2e8f0}.h{font-size:25px;font-weight:700}.s{font-size:14px;fill:#94a3b8}.n{font-size:17px;font-weight:700}.e{stroke:#a5f3fc;stroke-width:2.5;fill:none;marker-end:url(#a)}</style></defs>
+  <rect width="1200" height="520" rx="22" fill="url(#bg)"/><text x="48" y="55" class="h">Role dependency graph</text><text x="48" y="82" class="s">Dependencies are declared in each role's meta/main.yml and resolved by Ansible.</text>
+  <path d="M250 220H390" class="e"/><path d="M550 220H690" class="e"/><path d="M250 365H390" class="e"/><path d="M550 365H690" class="e"/>
+  <rect x="70" y="165" width="180" height="110" rx="14" fill="#12314a" stroke="#22d3ee" stroke-width="2"/><text x="108" y="214" class="n">bootstrap</text><text x="103" y="242" class="s">prerequisites</text>
+  <rect x="390" y="165" width="160" height="110" rx="14" fill="#2b1b42" stroke="#c084fc" stroke-width="2"/><text x="438" y="214" class="n">scoop</text><text x="425" y="242" class="s">buckets + apps</text>
+  <rect x="690" y="165" width="160" height="110" rx="14" fill="#23351f" stroke="#86efac" stroke-width="2"/><text x="728" y="214" class="n">msys2</text><text x="722" y="242" class="s">pacman layer</text>
+  <rect x="70" y="310" width="180" height="110" rx="14" fill="#12314a" stroke="#22d3ee" stroke-width="2"/><text x="96" y="359" class="n">windows_settings</text><text x="109" y="387" class="s">registry + PATH</text>
+  <rect x="390" y="310" width="160" height="110" rx="14" fill="#2b1b42" stroke="#c084fc" stroke-width="2"/><text x="432" y="359" class="n">dotfiles</text><text x="421" y="387" class="s">configs + templates</text>
+  <rect x="690" y="310" width="330" height="110" rx="14" fill="#102d29" stroke="#5eead4" stroke-width="2"/><text x="786" y="359" class="n">converged workstation</text><text x="769" y="387" class="s">software · settings · user profile</text>
+  <path d="M850 220H1090V365H1020" class="e"/><path d="M550 365H690" class="e"/>
+  <text x="1052" y="212" class="s">enables</text><text x="574" y="352" class="s">configures</text>
+  <rect x="70" y="455" width="950" height="34" rx="10" fill="#0b1220"/><text x="90" y="478" class="s">Order: bootstrap → scoop → msys2 · windows_settings and dotfiles converge alongside the package layers</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">Ansible execution flow</title><desc id="desc">The site playbook validates the target, applies roles, flushes handlers and verifies state.</desc>
+  <defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#08121f"/><stop offset="1" stop-color="#15182c"/></linearGradient><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#67e8f9"/></marker><style>text{font-family:Inter,Segoe UI,Arial,sans-serif;fill:#e2e8f0}.h{font-size:25px;font-weight:700}.s{font-size:14px;fill:#94a3b8}.n{font-size:16px;font-weight:700}.e{stroke:#67e8f9;stroke-width:2.5;fill:none;marker-end:url(#a)}</style></defs>
+  <rect width="1200" height="420" rx="22" fill="url(#bg)"/><text x="48" y="55" class="h">Execution flow</text><text x="48" y="82" class="s">Every run is designed to be safe to repeat and easy to inspect.</text>
+  <path d="M205 220H270" class="e"/><path d="M425 220H490" class="e"/><path d="M645 220H710" class="e"/><path d="M865 220H930" class="e"/>
+  <rect x="50" y="165" width="155" height="110" rx="14" fill="#12314a" stroke="#22d3ee" stroke-width="2"/><text x="89" y="212" class="n">1 · target</text><text x="72" y="241" class="s">facts + OS check</text>
+  <rect x="270" y="165" width="155" height="110" rx="14" fill="#2b1b42" stroke="#c084fc" stroke-width="2"/><text x="312" y="212" class="n">2 · inputs</text><text x="294" y="241" class="s">inventory + vault</text>
+  <rect x="490" y="165" width="155" height="110" rx="14" fill="#23351f" stroke="#86efac" stroke-width="2"/><text x="530" y="212" class="n">3 · converge</text><text x="511" y="241" class="s">roles + handlers</text>
+  <rect x="710" y="165" width="155" height="110" rx="14" fill="#3a2d16" stroke="#fbbf24" stroke-width="2"/><text x="749" y="212" class="n">4 · refresh</text><text x="731" y="241" class="s">Explorer + env</text>
+  <rect x="930" y="165" width="155" height="110" rx="14" fill="#102d29" stroke="#5eead4" stroke-width="2"/><text x="970" y="212" class="n">5 · verify</text><text x="948" y="241" class="s">read-only checks</text>
+  <rect x="50" y="325" width="1035" height="34" rx="10" fill="#0b1220"/><text x="72" y="348" class="s">make check  →  preview · make site  →  apply · make verify  →  audit</text>
+</svg>

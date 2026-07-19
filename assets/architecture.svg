@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">playbooks-4-windows architecture</title>
+  <desc id="desc">Ansible control nodes converge Windows hosts through inventory, variables, roles and playbooks.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#07111f"/><stop offset="1" stop-color="#10172b"/></linearGradient>
+    <linearGradient id="cyan" x1="0" x2="1"><stop stop-color="#22d3ee"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
+    <linearGradient id="pink" x1="0" x2="1"><stop stop-color="#f472b6"/><stop offset="1" stop-color="#c084fc"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#67e8f9"/></marker>
+    <style>text{font-family:Inter,Segoe UI,Arial,sans-serif;fill:#e2e8f0}.label{font-size:16px;font-weight:600}.small{font-size:13px;fill:#94a3b8}.title{font-size:25px;font-weight:700}.box{stroke-width:2}.edge{fill:none;stroke:#67e8f9;stroke-width:2;marker-end:url(#arrow);opacity:.9}</style>
+  </defs>
+  <rect width="1200" height="560" rx="22" fill="url(#bg)"/>
+  <circle cx="1040" cy="80" r="170" fill="#164e63" opacity=".18" filter="url(#glow)"/>
+  <text x="52" y="54" class="title">Declarative Windows workstation topology</text>
+  <text x="52" y="80" class="small">One inventory · one role graph · repeatable convergence</text>
+
+  <rect x="52" y="130" width="225" height="275" rx="16" fill="#0b1d33" stroke="url(#cyan)" class="box"/>
+  <text x="78" y="169" class="label">Control node</text>
+  <text x="78" y="198" class="small">macOS / Linux</text>
+  <text x="78" y="246" class="label">ansible-playbook</text>
+  <text x="78" y="275" class="small">site.yml</text><text x="78" y="298" class="small">packages.yml</text><text x="78" y="321" class="small">dotfiles.yml</text><text x="78" y="344" class="small">verify.yml</text>
+  <text x="78" y="382" class="small">Vault + collections</text>
+
+  <path d="M277 235H370" class="edge"/><path d="M277 330H370" class="edge"/>
+  <rect x="370" y="130" width="225" height="275" rx="16" fill="#211735" stroke="url(#pink)" class="box"/>
+  <text x="396" y="169" class="label">Inventory &amp; vars</text>
+  <text x="396" y="207" class="small">hosts.yml</text><text x="396" y="230" class="small">group_vars/</text><text x="396" y="253" class="small">host_vars/</text><text x="396" y="276" class="small">vault.yml</text>
+  <text x="396" y="322" class="label">Policy inputs</text><text x="396" y="351" class="small">feature flags</text><text x="396" y="374" class="small">package lists</text>
+
+  <path d="M595 235H688" class="edge"/><path d="M595 330H688" class="edge"/>
+  <rect x="688" y="130" width="225" height="275" rx="16" fill="#0b1d33" stroke="url(#cyan)" class="box"/>
+  <text x="714" y="169" class="label">Roles</text>
+  <text x="714" y="207" class="small">bootstrap</text><text x="714" y="230" class="small">windows_settings</text><text x="714" y="253" class="small">scoop · winget</text><text x="714" y="276" class="small">msys2</text><text x="714" y="299" class="small">dotfiles</text>
+  <text x="714" y="351" class="small">idempotent tasks</text><text x="714" y="374" class="small">handlers + templates</text>
+
+  <path d="M913 267H1005" class="edge"/>
+  <rect x="1005" y="130" width="143" height="275" rx="16" fill="#17251f" stroke="#86efac" class="box"/>
+  <text x="1029" y="169" class="label">Windows</text><text x="1029" y="198" class="small">10 / 11</text>
+  <text x="1029" y="246" class="small">Registry</text><text x="1029" y="269" class="small">Packages</text><text x="1029" y="292" class="small">PATH / env</text><text x="1029" y="315" class="small">Dotfiles</text><text x="1029" y="338" class="small">Explorer</text>
+  <text x="1029" y="382" class="small">converged state</text>
+
+  <rect x="52" y="455" width="1096" height="58" rx="12" fill="#0b1220" stroke="#334155"/>
+  <text x="78" y="490" class="small">Execution: WSL2 local connection</text><text x="490" y="490" class="small">or</text><text x="560" y="490" class="small">macOS/Linux → WinRM → remote Windows host(s)</text>
+</svg>
