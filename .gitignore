@@ -35,3 +35,6 @@ __pycache__/
 ## Nix
 .direnv/
 .pre-commit-config.yaml
+
+## git worktrees kept inside the project directory
+.worktrees/
