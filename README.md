@@ -8,7 +8,7 @@
   <a href="https://github.com/DivitMittal/playbooks-4-windows"><img src="https://img.shields.io/github/repo-size/DivitMittal/playbooks-4-windows?style=for-the-badge&logo=github" alt="repository size"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 10 or 11">
   <img src="https://img.shields.io/badge/Ansible-%E2%89%A52.16-EE0000?style=for-the-badge&logo=ansible&logoColor=white" alt="Ansible 2.16 or newer">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-22c55e?style=for-the-badge" alt="MIT license"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-HONCL--1.0-22c55e?style=for-the-badge" alt="HONCL-1.0 license"></a>
 </p>
 
 <p align="center">
@@ -235,4 +235,4 @@ ansible-vault rekey inventory/group_vars/all/vault.yml
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+HONCL-1.0 — see [LICENSE](LICENSE).
